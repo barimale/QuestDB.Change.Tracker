@@ -1,40 +1,89 @@
-name: Publish
+name: Build & Publish QuestDB.Change.Tracker
 
-on: [push]
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+
+env:
+  DOTNET_VERSION: '8.0.x'
+  BUILD_CONFIGURATION: 'Release'
 
 jobs:
   build:
-
+    name: Build and Test
     runs-on: windows-latest
 
     steps:
-    - uses: actions/checkout@master
+    - name: Checkout code
+      uses: actions/checkout@v4
 
-    - uses: actions/setup-dotnet@v1
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
 
-    - name: Setup Nuget
-      uses: NuGet/setup-nuget@v1
+    - name: Restore dependencies
+      run: dotnet restore .\QuestDB.Change.Tracker.sln
 
-    - name: Nuget Add apiKey 
+    - name: Build solution
+      run: dotnet build .\QuestDB.Change.Tracker.sln --configuration ${{ env.BUILD_CONFIGURATION }} --no-restore
+
+    - name: Run tests
+      run: dotnet test .\QuestDB.Change.Tracker.sln --configuration ${{ env.BUILD_CONFIGURATION }} --no-build --verbosity normal --logger "trx;LogFileName=test-results.trx"
+
+    - name: Upload test results
+      if: always()
+      uses: actions/upload-artifact@v4
+      with:
+        name: test-results
+        path: '**/test-results.trx'
+
+  publish:
+    name: Publish NuGet Package
+    runs-on: windows-latest
+    needs: build
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+
+    - name: Setup .NET
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: ${{ env.DOTNET_VERSION }}
+
+    - name: Setup NuGet
+      uses: NuGet/setup-nuget@v2
+
+    - name: Configure NuGet API Key
       run: nuget setapikey ${{ secrets.NUGET_ORG_TOKEN }} -Source "https://api.nuget.org/v3/index.json"
 
-    - name: Nuget Restore 
-      run: nuget restore .\ConfigurationManager.Api.sln
+    - name: Restore dependencies
+      run: dotnet restore .\QuestDB.Change.Tracker.sln
 
-    - name: Build Solution 
-      run: dotnet build .\ConfigurationManager.Api.sln --configuration Release
+    - name: Build solution
+      run: dotnet build .\QuestDB.Change.Tracker.sln --configuration ${{ env.BUILD_CONFIGURATION }} --no-restore
 
-    - name: Nuget Pack
-      run: nuget pack .\ConfigurationManager.Api\pack.nuspec -Properties Configuration=Release -OutputDirectory .\nugetPackages
-    
-    - name: Nuget Pack Symbols
-      run: nuget pack .\ConfigurationManager.Api\pack.nuspec -Properties Configuration=Release -Symbols -OutputDirectory .\nugetPackages
-    
-    - name: Nuget Pack2
-      run: nuget pack .\ConfigurationManager.Api\consul-pack.nuspec -Properties Configuration=Release -OutputDirectory .\nugetPackages
-    
-    - name: Nuget Pack2 Symbols
-      run: nuget pack .\ConfigurationManager.Api\consul-pack.nuspec -Properties Configuration=Release -Symbols -OutputDirectory .\nugetPackages
-    
-    - name: Nuget Push
+    - name: Create output directory
+      run: mkdir -p .\nugetPackages
+
+    - name: Pack NuGet package (standard)
+      run: nuget pack .\QuestDB.Change.Tracker.Api\pack.nuspec -Properties Configuration=${{ env.BUILD_CONFIGURATION }} -OutputDirectory .\nugetPackages
+
+    - name: Pack NuGet package (with symbols)
+      run: nuget pack .\QuestDB.Change.Tracker.Api\pack.nuspec -Properties Configuration=${{ env.BUILD_CONFIGURATION }} -Symbols -OutputDirectory .\nugetPackages
+
+    - name: List packaged files
+      run: dir .\nugetPackages
+
+    - name: Push NuGet packages
       run: nuget push .\nugetPackages\*.nupkg -Source "https://api.nuget.org/v3/index.json" -SkipDuplicate -NoSymbols
+
+    - name: Upload packages as artifacts
+      uses: actions/upload-artifact@v4
+      with:
+        name: nuget-packages
+        path: '.\nugetPackages\*.nupkg'
