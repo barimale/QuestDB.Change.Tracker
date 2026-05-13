@@ -21,7 +21,7 @@ namespace UT.ConfigurationManager.Api
     {
         [Test]
         [Ignore("Integration test - requires QuestDB instance running at 127.0.0.1:8812. Use mocked IDbConnectionFactory for unit tests.")]
-        public async Task I_d_like_to_get_specific_appSetting_using_lazy_adapter()
+        public async Task I_d_like_to_check_onchange_event()
         {
             //given 
             var connectionFactory = new NpgsqlConnectionFactory(
