@@ -2,7 +2,7 @@
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace QuestDB.Change.Tracker.Api
+namespace QuestDB.Change.Tracker.Api.Extensions
 {
     public static class NpgsqlExtensions
     {

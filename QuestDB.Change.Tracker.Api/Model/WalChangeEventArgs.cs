@@ -1,7 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 
-namespace QuestDB.Change.Tracker.Api
+namespace QuestDB.Change.Tracker.Api.Model
 {
     public class WalChangeEventArgs
     {

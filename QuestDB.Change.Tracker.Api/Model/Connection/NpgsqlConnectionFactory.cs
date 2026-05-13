@@ -3,7 +3,7 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace QuestDB.Change.Tracker.Api
+namespace QuestDB.Change.Tracker.Api.Model.Connection
 {
     /// <summary>
     /// Default implementation of IDbConnectionFactory for PostgreSQL/QuestDB connections.

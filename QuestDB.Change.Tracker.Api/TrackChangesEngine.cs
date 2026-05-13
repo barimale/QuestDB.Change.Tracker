@@ -1,4 +1,7 @@
 ﻿using Npgsql;
+using QuestDB.Change.Tracker.Api.Extensions;
+using QuestDB.Change.Tracker.Api.Model;
+using QuestDB.Change.Tracker.Api.Model.Connection;
 using System;
 using System.Collections.Generic;
 using System.Data.Common;

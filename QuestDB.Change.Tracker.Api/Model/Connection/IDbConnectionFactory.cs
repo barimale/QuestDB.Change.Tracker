@@ -2,7 +2,7 @@ using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace QuestDB.Change.Tracker.Api
+namespace QuestDB.Change.Tracker.Api.Model.Connection
 {
     /// <summary>
     /// Factory interface for creating database connections.

@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using QuestDB.Change.Tracker.Api;
+using QuestDB.Change.Tracker.Api.Model.Connection;
 using System;
 using System.Collections;
 using System.Collections.Generic;
