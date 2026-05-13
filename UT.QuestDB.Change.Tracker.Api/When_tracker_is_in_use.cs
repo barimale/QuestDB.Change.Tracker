@@ -3,18 +3,36 @@ using QuestDB.Change.Tracker.Api;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
-using System.Xml.Linq;
-using static Npgsql.Replication.PgOutput.Messages.RelationMessage;
 
 namespace UT.ConfigurationManager.Api
 {
+    /// <summary>
+    /// Integration tests for TrackChangesEngine.
+    /// These tests require a running QuestDB instance at localhost:8812.
+    /// 
+    /// For unit testing without a database, mock IDbConnectionFactory instead.
+    /// Example:
+    /// <code>
+    /// var mockFactory = new Mock&lt;IDbConnectionFactory&gt;();
+    /// var tracker = new TrackChangesEngine(mockFactory.Object);
+    /// </code>
+    /// </summary>
     public class When_tracker_is_in_use
     {
         [Test]
+        [Ignore("Integration test - requires QuestDB instance running at 127.0.0.1:8812. Use mocked IDbConnectionFactory for unit tests.")]
         public async Task I_d_like_to_get_specific_appSetting_using_lazy_adapter()
         {
             //given 
-            var tracker = new TrackChangesEngine();
+            var connectionFactory = new NpgsqlConnectionFactory(
+                host: "127.0.0.1",
+                port: 8812,
+                username: "admin",
+                password: "quest",
+                database: "qdb"
+            );
+
+            var tracker = new TrackChangesEngine(connectionFactory);
             tracker.OnChange += async (args) =>
             {
                 //then
@@ -26,19 +44,15 @@ namespace UT.ConfigurationManager.Api
             var cts = new CancellationTokenSource();
             await Task.Run(() =>
                 tracker.TrackAsync(
-                    "123",
-                    "TM5_10",
-                    "qdb",
-                    "admin",
-                    "127.0.0.1",
-                    8812,
-                    "quest",
-                    10,
-                    1,
-                    "timestamp",
-                    "trackingTable",
-                    Guid.NewGuid().ToString(),
-                    cts.Token
+                    tableName: "123",
+                    columns: "TM5_10",
+                    rowThreshold: 10,
+                    checkInterval: 1,
+                    timestampColumn: "timestamp",
+                    trackingTable: "trackingTable",
+                    trackingId: Guid.NewGuid().ToString(),
+                    connectionFactory: connectionFactory,
+                    ct: cts.Token
                 )
             );
         }

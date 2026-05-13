@@ -1,21 +1,40 @@
 ﻿using Npgsql;
 using System;
 using System.Collections.Generic;
+using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
 
 namespace QuestDB.Change.Tracker.Api
 {
+    /// <summary>
+    /// Engine for tracking changes in QuestDB tables using WAL (Write-Ahead Log) transactions.
+    /// Supports dependency injection for testability.
+    /// </summary>
     public class TrackChangesEngine
     {
         private readonly SynchronizationContext _ui;
+        private readonly IDbConnectionFactory _connectionFactory;
+
         public event Func<WalChangeEventArgs, Task>? OnChange;
 
-        public TrackChangesEngine()
+        /// <summary>
+        /// Initializes a new instance of the TrackChangesEngine class.
+        /// </summary>
+        /// <param name="connectionFactory">Factory for creating database connections. If null, legacy mode is used.</param>
+        public TrackChangesEngine(IDbConnectionFactory? connectionFactory = null)
         {
             _ui = SynchronizationContext.Current!;
+            _connectionFactory = connectionFactory!;
         }
 
+        /// <summary>
+        /// Tracks changes in a table and raises events when transactions meet the row threshold.
+        /// 
+        /// NOTE: This overload is deprecated. Use TrackAsync(IDbConnectionFactory, ...) instead.
+        /// Kept for backward compatibility.
+        /// </summary>
+        [Obsolete("Use the constructor with IDbConnectionFactory dependency injection instead.")]
         public async Task TrackAsync(
              string tableName,
              string columns,
@@ -31,9 +50,43 @@ namespace QuestDB.Change.Tracker.Api
              string trackingId,
              CancellationToken ct)
         {
-            var connString = $"Host={host};Port={port};Username={user};Password={password};Database={dbname};"; // 
-            await using var conn = new NpgsqlConnection(connString);
-            await conn.OpenAsync(ct);
+            var factory = new NpgsqlConnectionFactory(host, port, user, password, dbname);
+            await TrackAsync(
+                tableName,
+                columns,
+                rowThreshold,
+                checkInterval,
+                timestampColumn,
+                trackingTable,
+                trackingId,
+                factory,
+                ct);
+        }
+
+        /// <summary>
+        /// Tracks changes in a table and raises events when transactions meet the row threshold.
+        /// </summary>
+        /// <param name="tableName">Name of the table to track.</param>
+        /// <param name="columns">Comma-separated list of columns to aggregate.</param>
+        /// <param name="rowThreshold">Minimum number of rows to trigger a change event.</param>
+        /// <param name="checkInterval">Interval in seconds between checks for new transactions.</param>
+        /// <param name="timestampColumn">Name of the timestamp column for filtering.</param>
+        /// <param name="trackingTable">Name of the tracking table to store progress (optional).</param>
+        /// <param name="trackingId">Unique ID for this tracking session (optional).</param>
+        /// <param name="connectionFactory">Factory for creating database connections.</param>
+        /// <param name="ct">Cancellation token.</param>
+        public async Task TrackAsync(
+             string tableName,
+             string columns,
+             int rowThreshold,
+             int checkInterval,
+             string timestampColumn,
+             string trackingTable,
+             string trackingId,
+             IDbConnectionFactory connectionFactory,
+             CancellationToken ct)
+        {
+            await using var conn = (NpgsqlConnection)await connectionFactory.CreateConnectionAsync(ct);
 
             await using var cmd = conn.CreateCommand();
 
