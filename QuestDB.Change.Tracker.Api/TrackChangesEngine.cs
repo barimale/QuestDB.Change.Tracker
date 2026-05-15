@@ -61,8 +61,6 @@ namespace QuestDB.Change.Tracker.Api
             var (latestTxnId, latestStructureVersion) = await InitializeTrackingAsync(
                 cmd, tableName, trackingTable, trackingId, ct);
 
-            Console.WriteLine($"Starting from transaction ID: {latestTxnId} with structure version: {latestStructureVersion}");
-
             // Main tracking loop
             await TrackingLoopAsync(
                 cmd,
@@ -76,8 +74,6 @@ namespace QuestDB.Change.Tracker.Api
                 latestTxnId,
                 latestStructureVersion,
                 ct);
-
-            Console.WriteLine("TrackAsync stopped.");
         }
 
         /// <summary>
@@ -304,7 +300,6 @@ namespace QuestDB.Change.Tracker.Api
             {
                 if (txn.structVer != latestVersion)
                 {
-                    Console.WriteLine($"Structure version changed from {latestVersion} to {txn.structVer} on transaction {txn.txn}");
                     latestVersion = txn.structVer;
                 }
             }
@@ -427,11 +422,8 @@ namespace QuestDB.Change.Tracker.Api
                 headers.Add($"{col}_avg");
             }
 
-            Console.WriteLine(string.Join(", ", headers));
-
             var values = new object[headers.Count];
             result.GetValues(values);
-            Console.WriteLine(string.Join(", ", values));
         }
 
         /// <summary>
