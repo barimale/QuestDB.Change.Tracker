@@ -4,6 +4,7 @@ using QuestDB.Change.Tracker.Api.Model;
 using QuestDB.Change.Tracker.Api.Model.Connection;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Data.Common;
 using System.Threading;
 using System.Threading.Tasks;
@@ -72,7 +73,7 @@ namespace QuestDB.Change.Tracker.Api
         /// <param name="tableName">Name of the table to track.</param>
         /// <param name="columns">Comma-separated list of columns to aggregate.</param>
         /// <param name="rowThreshold">Minimum number of rows to trigger a change event.</param>
-        /// <param name="checkInterval">Interval in seconds between checks for new transactions.</param>
+        /// <param name="checkIntervalInSeconds">Interval in seconds between checks for new transactions.</param>
         /// <param name="timestampColumn">Name of the timestamp column for filtering.</param>
         /// <param name="trackingTable">Name of the tracking table to store progress (optional).</param>
         /// <param name="trackingId">Unique ID for this tracking session (optional).</param>
@@ -82,7 +83,7 @@ namespace QuestDB.Change.Tracker.Api
              string tableName,
              string columns,
              int rowThreshold,
-             int checkInterval,
+             int checkIntervalInSeconds,
              string timestampColumn,
              string trackingTable,
              string trackingId,
@@ -92,7 +93,7 @@ namespace QuestDB.Change.Tracker.Api
             await using var conn = (NpgsqlConnection)await connectionFactory.CreateConnectionAsync(ct);
 
             await using var cmd = conn.CreateCommand();
-
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
             long latestTxnId;
             long latestStructureVersion;
 
@@ -161,7 +162,7 @@ namespace QuestDB.Change.Tracker.Api
             // MAIN LOOP
             while (!ct.IsCancellationRequested)
             {
-                await Task.Delay(checkInterval * 1000, ct);
+                await Task.Delay(checkIntervalInSeconds * 1000, ct);
 
                 cmd.CommandText = $@"
             SELECT sequencerTxn, minTimestamp, maxTimestamp, rowCount, structureVersion
@@ -183,6 +184,8 @@ namespace QuestDB.Change.Tracker.Api
                             r.GetInt64(4)
                         ));
                     }
+
+                    await r.CloseAsync();
                 }
 
                 if (newTxns.Count == 0)
@@ -265,6 +268,8 @@ namespace QuestDB.Change.Tracker.Api
                 Console.WriteLine(string.Join(", ", values));
 
                 latestTxnId = newTxns[^1].txn;
+
+                await result.CloseAsync();
 
                 if (!string.IsNullOrEmpty(trackingTable) && !string.IsNullOrEmpty(trackingId))
                 {

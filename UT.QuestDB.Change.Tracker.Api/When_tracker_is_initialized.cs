@@ -67,7 +67,7 @@ namespace UT.ConfigurationManager.Api
                     tableName: "test_table",
                     columns: "col1,col2",
                     rowThreshold: 1,
-                    checkInterval: 1,
+                    checkIntervalInSeconds: 1,
                     timestampColumn: "ts",
                     trackingTable: "tracking",
                     trackingId: Guid.NewGuid().ToString(),

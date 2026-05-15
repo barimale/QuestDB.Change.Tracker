@@ -1,5 +1,6 @@
 using NUnit.Framework;
 using QuestDB.Change.Tracker.Api;
+using QuestDB.Change.Tracker.Api.Model.Connection;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -20,7 +21,6 @@ namespace UT.ConfigurationManager.Api
     public class When_tracker_is_in_use
     {
         [Test]
-        [Ignore("Integration test - requires QuestDB instance running at 127.0.0.1:8812. Use mocked IDbConnectionFactory for unit tests.")]
         public async Task I_d_like_to_check_onchange_event()
         {
             //given 
@@ -31,6 +31,8 @@ namespace UT.ConfigurationManager.Api
                 password: "quest",
                 database: "qdb"
             );
+
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
             var tracker = new TrackChangesEngine(connectionFactory);
             tracker.OnChange += async (args) =>
@@ -46,8 +48,8 @@ namespace UT.ConfigurationManager.Api
                 tracker.TrackAsync(
                     tableName: "123",
                     columns: "TM5_10",
-                    rowThreshold: 10,
-                    checkInterval: 1,
+                    rowThreshold: 1,
+                    checkIntervalInSeconds: 1,
                     timestampColumn: "timestamp",
                     trackingTable: "trackingTable",
                     trackingId: Guid.NewGuid().ToString(),
