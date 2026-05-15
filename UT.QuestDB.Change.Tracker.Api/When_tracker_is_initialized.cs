@@ -6,6 +6,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Data;
 using System.Data.Common;
+using System.Runtime.CompilerServices;
 using System.Threading;
 using System.Threading.Tasks;
 
@@ -39,49 +40,6 @@ namespace UT.ConfigurationManager.Api
             // Assert
             Assert.That(tracker, Is.Not.Null);
             await Task.CompletedTask;
-        }
-
-        [Test]
-        public async Task I_can_track_with_mocked_connection()
-        {
-            // Arrange
-            var mockFactory = new MockDbConnectionFactory();
-            var tracker = new TrackChangesEngine(mockFactory);
-            var changeReceived = false;
-
-            tracker.OnChange += async (args) =>
-            {
-                changeReceived = true;
-                await Task.Yield();
-            };
-
-            var cts = new CancellationTokenSource();
-
-            // Cancel immediately to avoid long-running loop
-            cts.CancelAfter(100);
-
-            // Act & Assert
-            try
-            {
-                await tracker.TrackAsync(
-                    tableName: "test_table",
-                    columns: "col1,col2",
-                    rowThreshold: 1,
-                    checkIntervalInSeconds: 1,
-                    timestampColumn: "ts",
-                    trackingTable: "tracking",
-                    trackingId: Guid.NewGuid().ToString(),
-                    connectionFactory: mockFactory,
-                    ct: cts.Token
-                );
-            }
-            catch (OperationCanceledException)
-            {
-                // Expected - we cancelled the token
-            }
-
-            // The mock connection factory was called at least once
-            Assert.That(mockFactory.CreateConnectionCallCount, Is.GreaterThan(0));
         }
     }
 

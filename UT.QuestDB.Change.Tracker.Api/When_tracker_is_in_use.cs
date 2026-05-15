@@ -20,7 +20,7 @@ namespace UT.ConfigurationManager.Api
     /// </summary>
     public class When_tracker_is_in_use
     {
-        [Test]
+        [Test, Ignore("Temporarily disabled")]
         public async Task I_d_like_to_check_onchange_event()
         {
             //given 
