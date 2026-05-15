@@ -1,4 +1,4 @@
-# QuestDB.Change.Tracker.Api [POC]
+# QuestDB.Change.Tracker.Api
 ## Usage
 It is meant as a detector running in a background service. 
 Put the notification logic to the OnChange event to have the information about change propagated through 
