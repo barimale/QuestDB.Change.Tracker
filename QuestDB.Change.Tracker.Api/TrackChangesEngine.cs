@@ -34,41 +34,6 @@ namespace QuestDB.Change.Tracker.Api
 
         /// <summary>
         /// Tracks changes in a table and raises events when transactions meet the row threshold.
-        /// 
-        /// NOTE: This overload is deprecated. Use TrackAsync(IDbConnectionFactory, ...) instead.
-        /// Kept for backward compatibility.
-        /// </summary>
-        [Obsolete("Use the constructor with IDbConnectionFactory dependency injection instead.")]
-        public async Task TrackAsync(
-             string tableName,
-             string columns,
-             string dbname,
-             string user,
-             string host,
-             int port,
-             string password,
-             int rowThreshold,
-             int checkInterval,
-             string timestampColumn,
-             string trackingTable,
-             string trackingId,
-             CancellationToken ct)
-        {
-            var factory = new NpgsqlConnectionFactory(host, port, user, password, dbname);
-            await TrackAsync(
-                tableName,
-                columns,
-                rowThreshold,
-                checkInterval,
-                timestampColumn,
-                trackingTable,
-                trackingId,
-                factory,
-                ct);
-        }
-
-        /// <summary>
-        /// Tracks changes in a table and raises events when transactions meet the row threshold.
         /// </summary>
         /// <param name="tableName">Name of the table to track.</param>
         /// <param name="columns">Comma-separated list of columns to aggregate.</param>
@@ -77,7 +42,6 @@ namespace QuestDB.Change.Tracker.Api
         /// <param name="timestampColumn">Name of the timestamp column for filtering.</param>
         /// <param name="trackingTable">Name of the tracking table to store progress (optional).</param>
         /// <param name="trackingId">Unique ID for this tracking session (optional).</param>
-        /// <param name="connectionFactory">Factory for creating database connections.</param>
         /// <param name="ct">Cancellation token.</param>
         public async Task TrackAsync(
              string tableName,
@@ -87,10 +51,9 @@ namespace QuestDB.Change.Tracker.Api
              string timestampColumn,
              string trackingTable,
              string trackingId,
-             IDbConnectionFactory connectionFactory,
              CancellationToken ct)
         {
-            await using var conn = (NpgsqlConnection)await connectionFactory.CreateConnectionAsync(ct);
+            await using var conn = (NpgsqlConnection)await _connectionFactory.CreateConnectionAsync(ct);
 
             await using var cmd = conn.CreateCommand();
             AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
