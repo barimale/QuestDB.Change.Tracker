@@ -2,23 +2,10 @@
 # This .gitignore file was automatically created by Microsoft(R) Visual Studio.
 ################################################################################
 
-/ConfigurationManager.Api/.vs/ConfigurationManager.Api/v16
-/ConfigurationManager.Api/ConfigurationManager.Api/obj
-/ConfigurationManager.Api/UT.ConfigurationManager.Api/obj
-/ConfigurationManager.Api/.vs/ConfigurationManager.Api/DesignTimeBuild
-/ConfigurationManager.Api/ConfigurationManager.Api/bin/Debug/netcoreapp3.0
-/ConfigurationManager.Api/UT.ConfigurationManager.Api/bin/Debug/netcoreapp3.0
-obj
-obj
-/.vs/ConfigurationManager.Api
-/ConfigurationManager.Api/bin/Debug/netcoreapp3.0
-/UT.ConfigurationManager.Api/bin/Debug/netcoreapp3.0
-/ConfigurationManager.Api/bin/Release
-/UT.ConfigurationManager.Api/bin/Release/netcoreapp3.0
-/ConfigurationManager.Api/bin/Debug
-/ConfigurationManager.Api/ConfigurationManager.Api.csproj.user
-/UT.ConfigurationManager.Api/bin/Debug/net8.0
-/UT.ConfigurationManager.Api/bin
 /nugetPackages
-/ConfigurationManager.Api/bin
 /.vs
+/QuestDB.Change.Tracker.Api/obj
+/QuestDB.Change.Tracker.Api/bin
+/UT.QuestDB.Change.Tracker.Api/bin
+/UT.QuestDB.Change.Tracker.Api/obj
+obj

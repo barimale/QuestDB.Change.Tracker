@@ -53,7 +53,6 @@ namespace UT.ConfigurationManager.Api
                     timestampColumn: "timestamp",
                     trackingTable: "trackingTable",
                     trackingId: Guid.NewGuid().ToString(),
-                    connectionFactory: connectionFactory,
                     ct: cts.Token
                 )
             );
