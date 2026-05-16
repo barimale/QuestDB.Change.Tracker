@@ -52,10 +52,10 @@ namespace QuestDB.Change.Tracker.Api
              string trackingId,
              CancellationToken ct)
         {
+            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+
             await using var conn = (NpgsqlConnection)await _connectionFactory.CreateConnectionAsync(ct);
             await using var cmd = conn.CreateCommand();
-
-            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
 
             // Initialize tracking: setup tracking table and get latest transaction IDs
             var (latestTxnId, latestStructureVersion) = await InitializeTrackingAsync(
