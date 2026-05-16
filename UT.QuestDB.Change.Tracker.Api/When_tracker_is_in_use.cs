@@ -10,13 +10,7 @@ namespace UT.ConfigurationManager.Api
     /// <summary>
     /// Integration tests for TrackChangesEngine.
     /// These tests require a running QuestDB instance at localhost:8812.
-    /// 
-    /// For unit testing without a database, mock IDbConnectionFactory instead.
-    /// Example:
-    /// <code>
-    /// var mockFactory = new Mock&lt;IDbConnectionFactory&gt;();
-    /// var tracker = new TrackChangesEngine(mockFactory.Object);
-    /// </code>
+    /// Indjest data into the "123" table with a "timestamp" column for testing.
     /// </summary>
     public class When_tracker_is_in_use
     {
@@ -31,9 +25,6 @@ namespace UT.ConfigurationManager.Api
                 password: "quest",
                 database: "qdb"
             );
-
-            AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
-
             var tracker = new TrackChangesEngine(connectionFactory);
             tracker.OnChange += async (args) =>
             {
