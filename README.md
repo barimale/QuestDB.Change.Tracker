@@ -1,6 +1,6 @@
 # QuestDB.Change.Tracker.Api
-## Reqs
-- V2 format of QuestDB table
+## 1. Requirements
+- V2 format of the QuestDB table.
 
 To achive this, please add to the server.conf:
 ```
@@ -13,7 +13,7 @@ In case of any issues please follow:
 https://community.questdb.com/t/null-for-mintimestamp-maxtimestamp-and-rowcount/994
 ```
 
-## Usage
+## 2. Usage
 It is meant as a detector running i.e. as a background service.
 Example of the execution:
 ```
@@ -48,5 +48,5 @@ Example of the execution:
         )
     );
 ```
-## Co-author
+# Co-author
  - GitHub Copilot
