@@ -2,10 +2,10 @@
 
   <PropertyGroup>
     <TargetFrameworks>net8.0</TargetFrameworks>
-    <AssemblyVersion>1.2.2.1</AssemblyVersion>
-    <FileVersion>1.2.2.1</FileVersion>
+    <AssemblyVersion>1.2.2.2</AssemblyVersion>
+    <FileVersion>1.2.2.2</FileVersion>
     <GeneratePackageOnBuild>false</GeneratePackageOnBuild>
-    <Version>1.2.2.1</Version>
+    <Version>1.2.2.2</Version>
     <Authors>barimale</Authors>
     <Description>.NET QuestDB Change Tracker API - WAL-based change detection and tracking for QuestDB tables with event-driven architecture</Description>
     <RepositoryUrl>https://github.com/barimale/QuestDB.Change.Tracker</RepositoryUrl>
