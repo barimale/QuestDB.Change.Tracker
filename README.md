@@ -1,21 +1,16 @@
 # QuestDB.Change.Tracker.Api
 ## 1. Requirements
 - V2 format of the QuestDB table.
-
 To achive this, please add to the server.conf:
 ```
 cairo.default.sequencer.part.txn.count=50000
 ```
 It has to be a value greater than 1, otherwise the change tracking will not work.
-
 In case of any issues please follow:
 ```
 https://community.questdb.com/t/null-for-mintimestamp-maxtimestamp-and-rowcount/994
 ```
-
-## 2. Usage
-It is meant as a detector running i.e. as a background service.
-Example of the execution:
+## 2. Example of usage
 ```
     // given
     var connectionFactory = new NpgsqlConnectionFactory(
